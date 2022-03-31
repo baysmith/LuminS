@@ -114,20 +114,26 @@ pub fn copy(src: &str, dest: &str, _flags: Flag) -> Result<(), io::Error> {
 /// This function will return an error in the following situations,
 /// but is not limited to just these cases:
 /// * `target` is an invalid directory
-pub fn remove(target: &str, _flags: Flag) -> Result<(), io::Error> {
+pub fn remove(target: &str, flags: Flag) -> Result<(), io::Error> {
     // Retrieve data from target directory about files, dirs, symlinks
     let target_file_sets = file_ops::get_all_files(&target)?;
     let target_files = target_file_sets.files();
     let target_dirs = target_file_sets.dirs();
     let target_symlinks = target_file_sets.symlinks();
+    let force = flags.contains(Flag::FORCE);
 
     // Initialize progress bar
+    let len = (target_files.len() + target_dirs.len() + target_symlinks.len()) as u64;
     progress::progress_init(
-        (target_files.len() + target_dirs.len() + target_symlinks.len()) as u64,
+        if force { 2 * len } else { len },
     );
     PROGRESS_BAR.enable_steady_tick(1);
 
     // Delete everything
+    if force {
+        file_ops::set_readable_files(target_files.par_iter(), &target);
+        file_ops::set_readable_files(target_symlinks.par_iter(), &target);
+    }
     file_ops::delete_files(target_files.into_par_iter(), &target);
     file_ops::delete_files(target_symlinks.into_par_iter(), &target);
 
@@ -138,6 +144,9 @@ pub fn remove(target: &str, _flags: Flag) -> Result<(), io::Error> {
     let root_dir = Dir::from("");
     target_dirs.push(&root_dir);
 
+    if force {
+        file_ops::set_readable_files_sequential(target_dirs.clone().into_iter(), &target);
+    }
     file_ops::delete_files_sequential(target_dirs.into_iter(), &target);
 
     Ok(())

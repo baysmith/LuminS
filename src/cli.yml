@@ -1,5 +1,5 @@
 name: LuminS
-version: "0.4.0"
+version: "0.4.1-bas"
 about: Luminous Synchronize - A fast and reliable multithreaded alternative to rsync
   for synchronizing local files
 
@@ -44,6 +44,10 @@ subcommands:
             short: S
             long: sequential
             help: Delete files sequentially instead of in parallel
+        - force:
+            short: f
+            long: force
+            help: Delete files even if they are read-only
         - TARGET:
             help: Target directory
             multiple: true

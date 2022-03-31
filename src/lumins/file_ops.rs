@@ -23,6 +23,7 @@ pub trait FileOps {
     fn path(&self) -> &PathBuf;
     fn remove(&self, path: &PathBuf);
     fn copy(&self, src: &PathBuf, dest: &PathBuf);
+    fn set_readable(&self, path: &PathBuf);
 }
 
 /// A struct that represents a single file
@@ -46,6 +47,19 @@ impl FileOps for File {
         match fs::copy(&src, &dest) {
             Ok(_) => info!("Copying file {:?} -> {:?}", src, dest),
             Err(e) => error!("Error -- Copying file {:?}: {}", src, e),
+        }
+    }
+    fn set_readable(&self, path: &PathBuf) {
+        match fs::metadata(&path) {
+            Ok(metadata) => {
+                let mut perms = metadata.permissions();
+                perms.set_readonly(false);
+                match fs::set_permissions(&path, perms) {
+                    Ok(_) => info!("Set permissions on file {:?}", path),
+                    Err(e) => error!("Error -- Setting permissions on file {:?}: {}", path, e),
+                }
+            }
+            Err(e) => error!("Error -- Getting metadata of file {:?}: {}", path, e),
         }
     }
 }
@@ -120,6 +134,19 @@ impl FileOps for Dir {
             Err(e) => error!("Error -- Creating dir {:?}: {}", dest, e),
         }
     }
+    fn set_readable(&self, path: &PathBuf) {
+        match fs::metadata(&path) {
+            Ok(metadata) => {
+                let mut perms = metadata.permissions();
+                perms.set_readonly(false);
+                match fs::set_permissions(&path, perms) {
+                    Ok(_) => info!("Set permissions on file {:?}", path),
+                    Err(e) => error!("Error -- Setting permissions on file {:?}: {}", path, e),
+                }
+            }
+            Err(e) => error!("Error -- Getting metadata of file {:?}: {}", path, e),
+        }
+    }
 }
 
 impl Dir {
@@ -170,6 +197,19 @@ impl FileOps for Symlink {
                 Ok(_) => info!("Creating symlink dir {:?} -> {:?}", dest, self.target),
                 Err(e) => error!("Error -- Creating symlink dir {:?}: {}", dest, e),
             }
+        }
+    }
+    fn set_readable(&self, path: &PathBuf) {
+        match fs::metadata(&path) {
+            Ok(metadata) => {
+                let mut perms = metadata.permissions();
+                perms.set_readonly(false);
+                match fs::set_permissions(&path, perms) {
+                    Ok(_) => info!("Set permissions on file {:?}", path),
+                    Err(e) => error!("Error -- Setting permissions on file {:?}: {}", path, e),
+                }
+            }
+            Err(e) => error!("Error -- Getting metadata of file {:?}: {}", path, e),
         }
     }
 }
@@ -372,6 +412,31 @@ where
         PROGRESS_BAR.inc(1);
     }
 }
+
+pub fn set_readable_files<'a, T, S>(files_to_set: T, location: &str)
+where
+    T: ParallelIterator<Item = &'a S>,
+    S: FileOps + Sync + 'a,
+{
+    files_to_set.for_each(|file| {
+        let path = [&PathBuf::from(&location), file.path()].iter().collect();
+        file.set_readable(&path);
+        PROGRESS_BAR.inc(1);
+    });
+}
+
+pub fn set_readable_files_sequential<'a, T, S>(files_to_delete: T, location: &str)
+where
+    T: IntoIterator<Item = &'a S>,
+    S: FileOps + 'a,
+{
+    for file in files_to_delete {
+        let path = [&PathBuf::from(&location), file.path()].iter().collect();
+        file.set_readable(&path);
+        PROGRESS_BAR.inc(1);
+    }
+}
+
 
 /// Sorts (unstable) file paths in descending order by number of components, in parallel
 ///
