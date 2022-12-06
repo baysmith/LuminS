@@ -1,6 +1,6 @@
 //! Keeps track of LuminS' progress
 
-use indicatif::{ProgressBar, ProgressStyle};
+pub use indicatif::{ProgressBar, ProgressStyle};
 use lazy_static::lazy_static;
 
 lazy_static! {
