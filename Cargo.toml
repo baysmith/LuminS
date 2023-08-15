@@ -1,19 +1,22 @@
 [package]
 name = "lms"
-version = "0.4.1-bas"
-authors = ["Wesley Chang <wesleycanada@gmail.com>"]
+version = "0.5.0"
+authors = [
+    "Bradley Smith <bradley@baysmith.com>",
+    "Wesley Chang <wesleycanada@gmail.com>"
+]
 edition = "2018"
 license = "MIT"
 description = "A fast and reliable alternative to rsync for synchronizing local files"
 
-repository = "https://github.com/wchang22/lumins"
+repository = "https://github.com/baysmith/lms"
 readme = "./README.md"
 keywords = ["rsync", "linux", "file", "cli", "sync"]
 categories = ["command-line-utilities", "filesystem", ]
 
 [badges]
-travis-ci = { repository = "wchang22/LuminS", branch = "master" }
-codecov = { repository = "wchang22/LuminS", branch = "master", service = "github" }
+travis-ci = { repository = "baysmith/lms", branch = "master" }
+codecov = { repository = "baysmith/lms", branch = "master", service = "github" }
 
 [dependencies]
 clap = {version = "2.33.1", features = ["yaml"]}

@@ -43,7 +43,7 @@ pub fn synchronize(src: &str, dest: &str, flags: Flag) -> Result<(), io::Error> 
     );
 
     // Determine whether or not to delete
-    let delete = !flags.contains(Flag::NO_DELETE);
+    let delete = flags.contains(Flag::MIRROR);
 
     // Delete files and symlinks
     if delete {

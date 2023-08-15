@@ -14,7 +14,7 @@ use crate::progress::PROGRESS_BAR;
 bitflags! {
     /// Enum to represent command line flags
     pub struct Flag: u32 {
-        const NO_DELETE     = 0x1;
+        const MIRROR        = 0x1;
         const SECURE        = 0x2;
         const VERBOSE       = 0x4;
         const SEQUENTIAL    = 0x8;
@@ -56,7 +56,7 @@ pub fn parse_args<'a>(args: &'a ArgMatches) -> Result<ParseResult<'a>, ()> {
     let sub_command_name = args.subcommand_name().unwrap();
     let args = args.subcommand_matches(sub_command_name).unwrap();
 
-    const FLAG_NAMES: [&str; 5] = ["nodelete", "secure", "verbose", "sequential", "force"];
+    const FLAG_NAMES: [&str; 5] = ["mirror", "secure", "verbose", "sequential", "force"];
 
     // Parse for flags
     let mut flags = Flag::empty();

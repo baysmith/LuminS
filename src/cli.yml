@@ -61,9 +61,9 @@ subcommands:
         - ColoredHelp
       args:
         - nodelete:
-            short: n
-            long: nodelete
-            help: Do not delete any destination files
+            short: m
+            long: mirror
+            help: Make files in destination match source (deleting files not in source)
         - secure:
             short: s
             long: secure
